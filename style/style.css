@@ -1,0 +1,86 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap');
+* {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+}
+input:focus {
+    outline: none;
+}
+body {
+    background-color: #EAEAEA;
+}
+header {
+    display: flex;
+    height: 50px;
+    background-color: orange;
+    justify-content: space-around;
+    align-items: center;
+}
+h1 {
+    font-weight: 500;
+}
+form {
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
+}
+#summonerName {
+    height: 15px;
+    padding: 10px;
+    border: none;
+    border-radius: 4px 0 0 4px;
+}
+#search {
+    height: 35px;
+    padding: 0 5px 0 5px;
+    background-color: rgba(255, 255, 255, 0.7);
+    border: none;
+    border-radius: 0 4px 4px 0;
+}
+#search:hover{
+    cursor: pointer;
+}
+#primary {
+    padding: 30px 20px;
+    background-color: white;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(3,33%);
+    grid-template-rows: repeat(3,auto);
+    width: 1000px;
+}
+#summonerInfo img, #soloQ-info img, #flex-info img {
+    width: 100px;
+    margin-right: 20px;
+}
+#summonerInfo {
+    padding: 10px;
+    grid-column: 1/1;
+    grid-row: 1/1;
+}
+#soloQ-info {
+    padding: 10px;
+    grid-column: 1/1;
+    grid-row: 2/3;
+}
+#flex-info {
+    padding: 10px;
+    grid-column: 1/1;
+    grid-row: 3/4; 
+}
+.info {
+    display: flex;
+}
+#errorIcon {
+    text-align: center;
+    font-size: 80px;
+    color: orange;
+    grid-column: 2/3;
+    grid-row: 1/1;
+}
+#errorDesc {
+    text-align: center;
+    font-size: 1.2em;
+    grid-column: 2/3;
+    grid-row: 2/3;
+}
