@@ -1,6 +1,6 @@
 API_keys.php
-media/profileicons/*
-media/leagues/*
+media/*
+!media/downloadMedia.ps1
 .idea
 .idea/
 .idea/*
