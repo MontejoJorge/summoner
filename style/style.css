@@ -58,6 +58,10 @@ form {
     grid-column: 1/1;
     grid-row: 1/1;
 }
+#championMastery {
+    grid-column: 2/3;
+    grid-row: 1/1;
+}
 #soloQ-info {
     padding: 10px;
     grid-column: 1/1;
@@ -67,6 +71,10 @@ form {
     padding: 10px;
     grid-column: 1/1;
     grid-row: 3/4; 
+}
+#matchHistory{
+    grid-column: 2/4;
+    grid-row: 2;
 }
 .info {
     display: flex;
@@ -83,4 +91,19 @@ form {
     font-size: 1.2em;
     grid-column: 2/3;
     grid-row: 2/3;
+}
+.unranked {
+    padding-top: 10px;
+}
+.promo-progress{
+    padding: 0 5px 0 5px;
+}
+.red {
+    color: red;
+}
+.green {
+    color: green;
+}
+.gray{
+    color: gray;
 }
