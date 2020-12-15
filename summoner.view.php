@@ -19,7 +19,7 @@
     </header>
     <div id="primary">
         <?php
-        if (!isset($error)) {
+        if (!isset($errorDesc)) {
         ?>
             <div id="summonerInfo" class="info">
                 <img <?= 'src="./media/profileicons/' .  $summoner->getProfileIconId() . '.png"' ?> alt="profile icon">
@@ -87,7 +87,7 @@
         } else {
         ?>
             <div id="errorIcon"><?= $errorIcon ?></div>
-            <div id="errorDesc"><?= $error ?></div>
+            <div id="errorDesc"><?= $errorDesc ?></div>
         <?php
         }
         ?>
