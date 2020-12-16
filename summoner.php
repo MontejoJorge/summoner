@@ -111,7 +111,19 @@ function getChampionMasteryInfo($num)
     $championMasteryV4 = "https://euw1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/" . $GLOBALS["summoner"]->getId();
     $championMasteryV4OBJ = executeRequest($championMasteryV4);
 
-    return $championMasteryV4OBJ[$num];
+    //TODO cambiar 0 por $num
+    $championId = $championMasteryV4OBJ[$num]->{"championId"};
+    $championMasteryInfo = $championMasteryV4OBJ[$num];
+
+    $allChampions = json_decode(file_get_contents("./media/other/champion.json"))->data;
+
+    foreach ($allChampions as $champion){
+        if ($champion->key==$championId){
+            $GLOBALS["championMastery"]->set($championMasteryInfo);
+            $GLOBALS["championMastery"]->setChampionName($champion->id);
+            break;
+        }
+    }
 }
 
 
@@ -125,28 +137,11 @@ if (isset($_GET["name"])) {
         getLeagueInfo();
 
         //en el view un for y cada vez que lo repita mostrara 1
-        $championId = getChampionMasteryInfo(54)->{"championId"};
-        $championMastery = getChampionMasteryInfo(54);
-        //echo $key;
+        getChampionMasteryInfo(2);
 
-        $allChampions = json_decode(file_get_contents("./media/other/champion.json"))->data;
+        //echo $GLOBALS["championMastery"]->getChampionId();
+        //echo $GLOBALS["championMastery"]->getChampionName();
 
-        foreach ($allChampions as $champion){
-            if ($champion->key==$championId){
-                echo $champion->id;
-                $GLOBALS["championMastery"]->set($champion);
-                break;
-            }
-        }
-
-        //TODO guardar el nombre encontrado en el objeto ChampionMastery
-        echo $GLOBALS["championMastery"]->getId();
-
-    //https://es.stackoverflow.com/questions/414826/acceder-a-json-por-indice-en-php
-       //echo count($allChampions);
-        // for ($i=0; $i < count($allChampions) ; $i++) { 
-            
-        // }
     }
 }
 

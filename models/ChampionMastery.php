@@ -88,4 +88,9 @@ class championMastery {
     {
         return $this->championName;
     }
+
+    public function setChampionName($name)
+    {
+        $this->championName = $name;
+    }
 }
