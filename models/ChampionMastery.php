@@ -1,4 +1,5 @@
 <?php
+namespace Models;
 
 class championMastery {
     private $championId, $championLevel, $championPoints, $lastPlayTime, $championPointsSinceLastLevel, $championPointsUntilNextLevel, $chestGranted, $tokensEarned, $summonerId, $championName;

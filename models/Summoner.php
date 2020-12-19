@@ -1,4 +1,5 @@
 <?php
+namespace Models;
 
 class Summoner {
     private $id,$accountId,$puuid,$name,$profileIconId,$revisionDate,$summonerLevel;

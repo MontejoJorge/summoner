@@ -1,4 +1,5 @@
 <?php
+namespace Models;
 
 class League {
     private $leagueId,$summonerid,$summonerName,$queueType,$tier,$rank,$leaguePoints,$wins,$losses,$hotStreak,$veteran,$freshBlood,$inactive,$miniSeries;

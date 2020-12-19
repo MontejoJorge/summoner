@@ -1,4 +1,5 @@
 <?php
+namespace Models;
 
 class LocalError {
     private $errorIcon;
