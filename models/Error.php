@@ -1,14 +1,12 @@
 <?php
 namespace Models;
 
-class LocalError {
+class Error {
     private $errorIcon;
 
     private $errorDesc;
 
     public function __construct(){}
-
-
 
     /**
      * Get the value of errorIcon
