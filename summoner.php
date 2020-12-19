@@ -5,6 +5,11 @@ ini_set('display_startup_errors', 1);
 require_once "./models/Summoner.php";
 require_once "./models/League.php";
 require_once "./models/ChampionMastery.php";
+require_once "./models/Error.php";
+
+
+require "./vendor/autoload.php";
+use duncan3dc\Laravel\Blade;
 
 require_once "./API_keys.php";
 
@@ -14,9 +19,7 @@ $summoner = new Summoner();
 $soloQ = new League();
 $flex = new League();
 $championMastery = new championMastery();
-
-$errorDesc;
-$errorIcon;
+$error = new LocalError();
 
 
 
@@ -45,16 +48,16 @@ function getSummonerInfo($name)
             $GLOBALS["summoner"]->set($obj);
             break;
         case 404:
-            $GLOBALS["errorDesc"] = "El invocador no existe";
-            $GLOBALS["errorIcon"] = "<i class='fas fa-question-circle'></i>";
+            $GLOBALS["error"]->setErrorDesc("El invocador no existe");
+            $GLOBALS["error"]->setErrorIcon("fas fa-question-circle");
             break;
         case 403:
-            $GLOBALS["errorDesc"] = "Pongase en contacto con el administrador, la API key ha caducado";
-            $GLOBALS["errorIcon"] = "<i class='fas fa-exclamation-circle'></i>";
+            $GLOBALS["error"]->setErrorDesc("Pongase en contacto con el administrador, la API key ha caducado");
+            $GLOBALS["error"]->setErrorIcon("fas fa-exclamation-circle");
             break;
         default:
-            $GLOBALS["errorDesc"] = "Estamos teniendo problemas, disculpe las molestias " . $get_http_response_code;
-            $GLOBALS["errorIcon"] = "<i class='fas fa-exclamation-circle'></i>";
+            $GLOBALS["error"]->setErrorDesc("Estamos teniendo problemas, disculpe las molestias " . $get_http_response_code);
+            $GLOBALS["error"]->setErrorIcon("fas fa-exclamation-circle");
             break;
     }
 }
@@ -131,7 +134,6 @@ function getChampionMasteryInfo($num)
 if (isset($_GET["name"])) {
     //le paso al metodo el nombre remplazando los espacios por su caracter especial
     getSummonerInfo(str_replace(' ', '%20', $_GET["name"]));
-
     //si el invocador ha sido encontrado podemos buscar el resto
     if ($GLOBALS["summoner"]->getId() != "") {
         getLeagueInfo();
@@ -141,8 +143,12 @@ if (isset($_GET["name"])) {
 
         //echo $GLOBALS["championMastery"]->getChampionId();
         //echo $GLOBALS["championMastery"]->getChampionName();
-
+           
     }
 }
-
-require_once "summoner.view.php";
+echo Blade::render("summoner",[
+    "error"=>$GLOBALS["error"],
+    "summoner"=>$GLOBALS["summoner"],
+    "soloQ"=>$GLOBALS["soloQ"],
+    "flex"=>$GLOBALS["flex"]
+]);
