@@ -1,8 +1,8 @@
 {
     "name": "jorge/summoner",
-    "require": {
-        "duncan3dc/blade": "^4.10"
-    },
+    "description": "Basic web application using the Riot Games API",
+    "type": "project",
+    "license": "MIT",
     "autoload": {
         "psr-4": {
             "Models\\": "models/"
@@ -13,5 +13,9 @@
             "name": "Jorge Montejo",
             "email": "56157795+MontejoJorge@users.noreply.github.com"
         }
-    ]
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "duncan3dc/blade": "^4.10"
+    }
 }
