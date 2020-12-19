@@ -5,3 +5,6 @@ media/*
 .idea
 .idea/
 .idea/*
+.vscode
+/vendor/
+/cache/

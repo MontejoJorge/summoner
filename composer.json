@@ -1,0 +1,17 @@
+{
+    "name": "jorge/summoner",
+    "require": {
+        "duncan3dc/blade": "^4.10"
+    },
+    "autoload": {
+        "psr-4": {
+            "Models\\": "models/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Jorge Montejo",
+            "email": "56157795+MontejoJorge@users.noreply.github.com"
+        }
+    ]
+}

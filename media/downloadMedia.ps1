@@ -22,12 +22,16 @@ echo "This may take a few minutes, powershell will close when finished."
 
 
 mkdir profileicons
+mkdir champion
 
 mkdir dragontail
 
 tar zxvf dragontail.tgz -C dragontail
 
 cp .\dragontail\10.25.1\img\profileicon\* .\profileicons
+
+cp .\dragontail\10.25.1\img\champion\* .\champion
+
 
 Remove-Item -Recurse -Force .\dragontail
 Remove-Item -Recurse -Force .\dragontail.tgz
