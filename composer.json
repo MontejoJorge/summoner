@@ -3,6 +3,11 @@
     "require": {
         "duncan3dc/blade": "^4.10"
     },
+    "autoload": {
+        "psr-4": {
+            "Models\\": "models/"
+        }
+    },
     "authors": [
         {
             "name": "Jorge Montejo",
