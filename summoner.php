@@ -2,24 +2,23 @@
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 
-require_once "./models/Summoner.php";
-require_once "./models/League.php";
-require_once "./models/ChampionMastery.php";
-require_once "./models/Error.php";
-
-
 require "./vendor/autoload.php";
-use duncan3dc\Laravel\Blade;
-
 require_once "./API_keys.php";
+
+use duncan3dc\Laravel\Blade;
+use Models\Summoner;
+use Models\League;
+use Models\ChampionMastery;
+use Models\Error;
+
 
 /*Declaracion de variables globales*/
 
 $summoner = new Summoner();
 $soloQ = new League();
 $flex = new League();
-$championMastery = new championMastery();
-$error = new LocalError();
+$championsMasteries = [];
+$error = new Error();
 
 
 
@@ -110,7 +109,9 @@ function getWinrate($wins, $losses)
 }
 
 function getChampionMasteryInfo($num)
-{
+{    
+    $championMastery = new championMastery();
+
     $championMasteryV4 = "https://euw1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/" . $GLOBALS["summoner"]->getId();
     $championMasteryV4OBJ = executeRequest($championMasteryV4);
 
@@ -122,13 +123,27 @@ function getChampionMasteryInfo($num)
 
     foreach ($allChampions as $champion){
         if ($champion->key==$championId){
-            $GLOBALS["championMastery"]->set($championMasteryInfo);
-            $GLOBALS["championMastery"]->setChampionName($champion->id);
+            $championMastery->set($championMasteryInfo);
+            $championMastery->setChampionName($champion->id);
             break;
         }
     }
+    return $championMastery;
 }
 
+function shortNumbers($n, $precision = 0){
+    if ($n < 1000) {
+        // Anything less than a million
+        $n_format = number_format($n);
+    } else if ($n < 1000000) {
+        // Anything less than a billion
+        $n_format = number_format($n / 1000, $precision) . 'K';
+    } else {
+        // At least a billion
+        $n_format = number_format($n / 1000000, $precision) . 'M';
+    }
+    return $n_format." Points";
+}
 
 //si han introducido el enombre empiezo a llamar a los metodos
 if (isset($_GET["name"])) {
@@ -139,10 +154,9 @@ if (isset($_GET["name"])) {
         getLeagueInfo();
 
         //en el view un for y cada vez que lo repita mostrara 1
-        getChampionMasteryInfo(2);
-
-        //echo $GLOBALS["championMastery"]->getChampionId();
-        //echo $GLOBALS["championMastery"]->getChampionName();
+        for ($i=0; $i < 3; $i++) { 
+            array_push($GLOBALS["championsMasteries"],getChampionMasteryInfo($i));
+        }
            
     }
 }
@@ -150,5 +164,6 @@ echo Blade::render("summoner",[
     "error"=>$GLOBALS["error"],
     "summoner"=>$GLOBALS["summoner"],
     "soloQ"=>$GLOBALS["soloQ"],
-    "flex"=>$GLOBALS["flex"]
+    "flex"=>$GLOBALS["flex"],
+    "championsMasteries"=>$GLOBALS["championsMasteries"]
 ]);

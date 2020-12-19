@@ -11,14 +11,14 @@
 
 <body>
     <header>
-        <h1>Summoner</h1>
+        <a href="summoner.php"><h1>Summoner</h1></a>
         <form action="summoner.php" method="get">
             <input type="text" name="name" id="summonerName" placeholder="Nombre"><input type="submit" value="Buscar" id="search">
         </form>
         </div>
     </header>
     <div id="primary">
-        @if ($error->getErrorDesc()=="")
+        @if ($error->getErrorDesc()=="" && $_GET["name"]!="")
         <div id="summonerInfo" class="info">
             <img src="./media/profileicons/{{ $summoner->getProfileIconId() }}.png" alt="profile icon">
             <div id="summonerDesc">
@@ -26,12 +26,20 @@
                 <p id="level">{{ $summoner->getSummonerLevel() }}</p>
             </div>
         </div>
-            <div id="championMastery" class="info">
-
+            <div id="championsMasteries" class="info">
+                @php $i=1 @endphp
+                @foreach ($championsMasteries as $champ)
+                    <div id="championMastery{{ $i }}" class="championMastery">
+                        <img src="../media/champion/{{ $champ->getChampionName() }}.png" class="championMasteryChamp" alt="champion icon">
+                        <img src="../media/other/championmastery_level{{ $champ->getChampionLevel() }}banner.png" class="championMasteryBanner" alt="">
+                        <img src="../media/other/championmastery_level{{ $champ->getChampionLevel() }}.png" class="championMasteryIcon" alt="">
+                        <p class="championMasteryPoints">{{ shortNumbers($champ->getChampionPoints()) }}</p>
+                    </div>
+                @php $i++ @endphp
+                @endforeach
             </div>
             <div id="soloQ-info" class="info">
-                @if ($soloQ->getleagueId() != "")
-               
+                @if ($soloQ->getleagueId() != "")               
                     <img src="./media/leagues/Emblem_{{ $soloQ->getTier() }}.png"'  alt="league icon">
                     <div class="leagueInfo">
                         <p class="leagueType">Clasificatoria en solitario</p>
@@ -68,8 +76,9 @@
             </div>
             <div id="matchHistory">
 
-            </div>
-        
+            </div>        
+        @elseif (!isset($_GET["name"]))
+            <p id="withoutSummonerName">Introduce un nombre de invocador para ver sus estadisticas</p>
         @else
             <div id="errorIcon"><i class="{{ $error->getErrorIcon() }}"></i></div>
             <div id="errorDesc">{{ $error->getErrorDesc() }}</div>
@@ -77,5 +86,4 @@
     </div>
 
 </body>
-
 </html>
