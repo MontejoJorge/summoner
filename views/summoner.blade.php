@@ -40,7 +40,7 @@
             </div>
             <div id="soloQ-info" class="info">
                 @if ($soloQ->getleagueId() != "")               
-                    <img src="./media/leagues/Emblem_{{ $soloQ->getTier() }}.png"'  alt="league icon">
+                    <img src="./media/leagues/Emblem_{{ ucfirst(strtolower($soloQ->getTier())) }}.png"'  alt="league icon">
                     <div class="leagueInfo">
                         <p class="leagueType">Clasificatoria en solitario</p>
                         <h4> {{ ucfirst(strtolower($soloQ->getTier())) . " " . $soloQ->getRank() }} </h4>
@@ -58,7 +58,7 @@
             </div>
             <div id="flex-info" class="info">
                 @if ($flex->getleagueId() != "")
-                    <img src="./media/leagues/Emblem_{{ $flex->getTier() }}.png"'  alt="league icon">
+                    <img src="./media/leagues/Emblem_{{ ucfirst(strtolower($flex->getTier())) }}.png"'  alt="league icon">
                     <div class="leagueInfo">
                         <p class="leagueType">Clasificatoria flexible</p>
                         <h4> {{ ucfirst(strtolower($flex->getTier())) . " " . $flex->getRank() }}</h4>
