@@ -49,7 +49,7 @@
                         <p id="winRate">Tasa de victoria  {{ getWinrate($soloQ->getWins(), $soloQ->getLosses()) }} %</p>
                     </div>
                 @else               
-                    <img src="./media/other/Emblem_default.png" alt="league icon">
+                    <img src="./media/other/Emblem_Default.png" alt="league icon">
                     <div class="leagueInfo">
                         <p class="leagueType">Clasificatoria en solitario</p>
                         <h4 class="unranked">Unranked</h4>
@@ -67,7 +67,7 @@
                         <p id="winRate">Tasa de victoria  {{ getWinrate($flex->getWins(), $flex->getLosses()) }} %</p>
                     </div>                
                 @else                
-                    <img src="./media/other/Emblem_default.png" alt="league icon">
+                    <img src="./media/other/Emblem_Default.png" alt="league icon">
                     <div class="leagueInfo">
                         <p class="leagueType">Clasificatoria en flexible</p>
                         <h4 class="unranked">Unranked</h4>
