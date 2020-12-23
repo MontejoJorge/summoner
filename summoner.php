@@ -24,13 +24,24 @@ $error = new Error();
 
 function get_http_response_code($domain1)
 {
-    $headers = get_headers($domain1 . $GLOBALS["apiKey"]);
+    $headers = get_headers($domain1 ."?api_key=". $GLOBALS["apiKey"]);
     return substr($headers[0], 9, 3);
 }
 
 function executeRequest($url)
 {
-    return json_decode(file_get_contents($url . $GLOBALS["apiKey"]));
+    $options = array(
+        "http" => array(
+            "header" => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36\r\n".
+                        "Accept-Language: es-ES,es;q=0.9,en;q=0.8\r\n".
+                        "Accept-Charset: application/x-www-form-urlencoded; charset=UTF-8\r\n".
+                        "Origin: https://developer.riotgames.com\r\n".
+                        "X-Riot-Token: ".$GLOBALS["apiKey"] ."\r\n"
+        )
+    );
+
+    $context  = stream_context_create($options);
+    return json_decode(file_get_contents($url, false, $context));
 }
 
 function getSummonerInfo($name)
