@@ -10,21 +10,24 @@ use Models\Summoner;
 use Models\League;
 use Models\ChampionMastery;
 use Models\Error;
+use Models\MatchInfo;
 
 
 /*Declaracion de variables globales*/
 
-$summoner = new Summoner();
-$soloQ = new League();
-$flex = new League();
-$championsMasteries = [];
-$error = new Error();
+$summoner = new Summoner(); //Contiene informacion basica sobre el invocador
+$soloQ = new League(); //Contiene informacion sobre la liga "soloQ"
+$flex = new League(); //Contiene informacion sobre la liga "flex"
+$championsMasteries = []; //Contiene un array con informacion sobre los 3 campeones con mas puntos
+$error = new Error(); //Contendra informacion si ocurre un error en la solicitud a riot games
+$matchList = []; //Contiene la lista de partidas de un invocador
+$matchInfoList = []; //Contiene un array con informacion sobre cada partida
 
 
 
 function get_http_response_code($domain1)
 {
-    $headers = get_headers($domain1 ."?api_key=". $GLOBALS["apiKey"]);
+    $headers = get_headers($domain1 . "?api_key=" . $GLOBALS["apiKey"]);
     return substr($headers[0], 9, 3);
 }
 
@@ -32,11 +35,11 @@ function executeRequest($url)
 {
     $options = array(
         "http" => array(
-            "header" => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36\r\n".
-                        "Accept-Language: es-ES,es;q=0.9,en;q=0.8\r\n".
-                        "Accept-Charset: application/x-www-form-urlencoded; charset=UTF-8\r\n".
-                        "Origin: https://developer.riotgames.com\r\n".
-                        "X-Riot-Token: ".$GLOBALS["apiKey"] ."\r\n"
+            "header" => "User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.88 Safari/537.36\r\n" .
+                "Accept-Language: es-ES,es;q=0.9,en;q=0.8\r\n" .
+                "Accept-Charset: application/x-www-form-urlencoded; charset=UTF-8\r\n" .
+                "Origin: https://developer.riotgames.com\r\n" .
+                "X-Riot-Token: " . $GLOBALS["apiKey"] . "\r\n"
         )
     );
 
@@ -120,20 +123,19 @@ function getWinrate($wins, $losses)
 }
 
 function getChampionMasteryInfo($num)
-{    
+{
     $championMastery = new championMastery();
 
     $championMasteryV4 = "https://euw1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/" . $GLOBALS["summoner"]->getId();
     $championMasteryV4OBJ = executeRequest($championMasteryV4);
 
-    //TODO cambiar 0 por $num
     $championId = $championMasteryV4OBJ[$num]->{"championId"};
     $championMasteryInfo = $championMasteryV4OBJ[$num];
 
     $allChampions = json_decode(file_get_contents("./media/other/champion.json"))->data;
 
-    foreach ($allChampions as $champion){
-        if ($champion->key==$championId){
+    foreach ($allChampions as $champion) {
+        if ($champion->key == $championId) {
             $championMastery->set($championMasteryInfo);
             $championMastery->setChampionName($champion->id);
             break;
@@ -142,7 +144,8 @@ function getChampionMasteryInfo($num)
     return $championMastery;
 }
 
-function shortNumbers($n, $precision = 0){
+function shortNumbers($n, $precision = 0)
+{
     if ($n < 1000) {
         // Anything less than a million
         $n_format = number_format($n);
@@ -153,7 +156,27 @@ function shortNumbers($n, $precision = 0){
         // At least a billion
         $n_format = number_format($n / 1000000, $precision) . 'M';
     }
-    return $n_format." Points";
+    return $n_format . " Points";
+}
+
+function getMatchlist($acountId, $beginIndex = 0, $endIndex = 100)
+{
+    $matchV4 = "https://euw1.api.riotgames.com/lol/match/v4/matchlists/by-account/" . $acountId . "?endIndex=" . $endIndex . "&beginIndex=" . $beginIndex;
+
+    $matchOBJ = executeRequest($matchV4);
+
+    $GLOBALS["matchList"] = $matchOBJ->matches;
+}
+
+function getMatchInfo($matchId)
+{
+    $match = "https://euw1.api.riotgames.com/lol/match/v4/matches/".$matchId;
+
+    $matchOBJ = new MatchInfo();
+
+    $matchOBJ->set(executeRequest($match));
+
+    array_push($GLOBALS["matchInfoList"],$matchOBJ);
 }
 
 //si han introducido el enombre empiezo a llamar a los metodos
@@ -164,17 +187,23 @@ if (isset($_GET["name"])) {
     if ($GLOBALS["summoner"]->getId() != "") {
         getLeagueInfo();
 
-        //en el view un for y cada vez que lo repita mostrara 1
-        for ($i=0; $i < 3; $i++) { 
-            array_push($GLOBALS["championsMasteries"],getChampionMasteryInfo($i));
+        for ($i = 0; $i < 3; $i++) {
+            array_push($GLOBALS["championsMasteries"], getChampionMasteryInfo($i));
         }
-           
+
+        //cambiar el 0,1
+        getMatchlist($GLOBALS["summoner"]->getAccountId(),0,1);
+
+        foreach ($GLOBALS["matchList"] as $m) {
+            getMatchInfo($m->gameId);
+        }
+
     }
 }
-echo Blade::render("summoner",[
-    "error"=>$GLOBALS["error"],
-    "summoner"=>$GLOBALS["summoner"],
-    "soloQ"=>$GLOBALS["soloQ"],
-    "flex"=>$GLOBALS["flex"],
-    "championsMasteries"=>$GLOBALS["championsMasteries"]
+echo Blade::render("summoner", [
+    "error" => $GLOBALS["error"],
+    "summoner" => $GLOBALS["summoner"],
+    "soloQ" => $GLOBALS["soloQ"],
+    "flex" => $GLOBALS["flex"],
+    "championsMasteries" => $GLOBALS["championsMasteries"]
 ]);
