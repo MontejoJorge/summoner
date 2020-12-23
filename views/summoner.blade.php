@@ -15,7 +15,6 @@
         <form action="summoner.php" method="get">
             <input type="text" name="name" id="summonerName" placeholder="Nombre"><input type="submit" value="Buscar" id="search">
         </form>
-        </div>
     </header>
     <div id="primary">
         @if ($error->getErrorDesc()=="" && $_GET["name"]!="")
@@ -40,13 +39,13 @@
             </div>
             <div id="soloQ-info" class="info">
                 @if ($soloQ->getleagueId() != "")               
-                    <img src="./media/leagues/Emblem_{{ ucfirst(strtolower($soloQ->getTier())) }}.png"'  alt="league icon">
+                    <img src="./media/leagues/Emblem_{{ ucfirst(strtolower($soloQ->getTier())) }}.png"  alt="league icon">
                     <div class="leagueInfo">
                         <p class="leagueType">Clasificatoria en solitario</p>
                         <h4> {{ ucfirst(strtolower($soloQ->getTier())) . " " . $soloQ->getRank() }} </h4>
-                        <p id="leaguePoints"> {{ $soloQ->getLeaguePoints() . " LP " . getPromoInfo($soloQ) }}</p>
-                        <p id="wins-losses"> {{ $soloQ->getWins() . "W " . $soloQ->getLosses() . "L" }} </p>
-                        <p id="winRate">Tasa de victoria  {{ getWinrate($soloQ->getWins(), $soloQ->getLosses()) }} %</p>
+                        <p clas="leaguePoints"> {{ $soloQ->getLeaguePoints() . " LP "}} @php print getPromoInfo($soloQ) @endphp</p>
+                        <p clas="wins-losses"> {{ $soloQ->getWins() . "W " . $soloQ->getLosses() . "L" }} </p>
+                        <p clas="winRate">Tasa de victoria  {{ getWinrate($soloQ->getWins(), $soloQ->getLosses()) }} %</p>
                     </div>
                 @else               
                     <img src="./media/other/Emblem_Default.png" alt="league icon">
@@ -58,13 +57,13 @@
             </div>
             <div id="flex-info" class="info">
                 @if ($flex->getleagueId() != "")
-                    <img src="./media/leagues/Emblem_{{ ucfirst(strtolower($flex->getTier())) }}.png"'  alt="league icon">
+                    <img src="./media/leagues/Emblem_{{ ucfirst(strtolower($flex->getTier())) }}.png"  alt="league icon">
                     <div class="leagueInfo">
                         <p class="leagueType">Clasificatoria flexible</p>
                         <h4> {{ ucfirst(strtolower($flex->getTier())) . " " . $flex->getRank() }}</h4>
-                        <p id="leaguePoints"> {{ $flex->getLeaguePoints() . " LP " . getPromoInfo($flex) }}</p>
-                        <p id="wins-losses"> {{ $flex->getWins() . "W " . $flex->getLosses() . "L" }} </p>
-                        <p id="winRate">Tasa de victoria  {{ getWinrate($flex->getWins(), $flex->getLosses()) }} %</p>
+                        <p clas="leaguePoints"> {{ $flex->getLeaguePoints() . " LP "}} @php print getPromoInfo($flex) @endphp</p>
+                        <p clas="wins-losses"> {{ $flex->getWins() . "W " . $flex->getLosses() . "L" }} </p>
+                        <p clas="winRate">Tasa de victoria  {{ getWinrate($flex->getWins(), $flex->getLosses()) }} %</p>
                     </div>                
                 @else                
                     <img src="./media/other/Emblem_Default.png" alt="league icon">
