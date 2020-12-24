@@ -129,10 +129,11 @@ function getChampionMasteryInfo($num)
     $championMasteryV4 = "https://euw1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/" . $GLOBALS["summoner"]->getId();
     $championMasteryV4OBJ = executeRequest($championMasteryV4);
 
+    //TODO usar la funcion getChampionNameById ?
     $championId = $championMasteryV4OBJ[$num]->{"championId"};
     $championMasteryInfo = $championMasteryV4OBJ[$num];
 
-    $allChampions = json_decode(file_get_contents("./media/other/champion.json"))->data;
+    $allChampions = json_decode(file_get_contents("./data/champion.json"))->data;
 
     foreach ($allChampions as $champion) {
         if ($champion->key == $championId) {
@@ -142,6 +143,18 @@ function getChampionMasteryInfo($num)
         }
     }
     return $championMastery;
+}
+
+function getChampionNameById($id)
+{
+    $allChampions = json_decode(file_get_contents("./data/champion.json"))->data;
+
+    foreach ($allChampions as $champion) {
+        if ($champion->key == $id) {
+            return $champion->id;
+        }
+    }
+
 }
 
 function shortNumbers($n, $precision = 0)
@@ -170,13 +183,89 @@ function getMatchlist($acountId, $beginIndex = 0, $endIndex = 100)
 
 function getMatchInfo($matchId)
 {
-    $match = "https://euw1.api.riotgames.com/lol/match/v4/matches/".$matchId;
+    $match = "https://euw1.api.riotgames.com/lol/match/v4/matches/" . $matchId;
 
     $matchOBJ = new MatchInfo();
 
     $matchOBJ->set(executeRequest($match));
 
-    array_push($GLOBALS["matchInfoList"],$matchOBJ);
+    array_push($GLOBALS["matchInfoList"], $matchOBJ);
+}
+
+function getQueueDesc($id)
+{
+    $queues = json_decode(file_get_contents("./data/queues.json"));
+
+    foreach ($queues as $q) {
+        if ($q->queueId == $id) {
+            $desc = $q->description;
+            break;
+        }
+    }
+    return $desc;
+}
+
+function timeAgo($date)
+{
+    $timestamp = $date / 1000;
+    $strTime = array("second", "minute", "hour", "day", "month", "year");
+    $length = array("60", "60", "24", "30", "12", "10");
+
+    $currentTime = time();
+    if ($currentTime >= $timestamp) {
+        $diff     = time() - $timestamp;
+        for ($i = 0; $diff >= $length[$i] && $i < count($length) - 1; $i++) {
+            $diff = $diff / $length[$i];
+        }
+
+        $diff = round($diff);
+        //return $diff . " " . $strTime[$i] . "(s) ago ";
+        return $diff . " " . $strTime[$i] . ($diff > 1 ? 's' : '') . ' ago';
+    }
+}
+
+function getParticipantId($match)
+{
+    $id = "";
+    foreach ($match->getParticipantIdentities() as $p) {
+        if ($p->player->summonerName == $GLOBALS["summoner"]->getName()) {
+            $id = $p->participantId;
+            return $id;
+        }
+    }
+}
+
+function getParticipantsInfo($match, $participantId, $info)
+{
+    $infoReturn = "";
+    foreach ($match->getParticipants() as $p) {
+        if ($p->participantId == $participantId) {
+            $infoReturn = $p->$info;
+            return $infoReturn;
+        }
+    }
+}
+
+function getWinOrLose($match)
+{
+    $id = getParticipantId($match);
+
+    $team = getParticipantsInfo($match, $id, "teamId");
+
+    foreach ($match->getTeams() as $m) {
+        if ($m->teamId == $team) {
+            $result = $m->win;
+        }
+    }
+
+    switch ($result) {
+        case "Win":
+            return "Victory";
+        case "Fail":
+            return "Defeat";
+        default:
+            return "Victory";
+    }
 }
 
 //si han introducido el enombre empiezo a llamar a los metodos
@@ -191,13 +280,12 @@ if (isset($_GET["name"])) {
             array_push($GLOBALS["championsMasteries"], getChampionMasteryInfo($i));
         }
 
-        //cambiar el 0,1
-        getMatchlist($GLOBALS["summoner"]->getAccountId(),0,1);
+        //cambiar el 0,5
+        getMatchlist($GLOBALS["summoner"]->getAccountId(), 0, 5);
 
         foreach ($GLOBALS["matchList"] as $m) {
             getMatchInfo($m->gameId);
         }
-
     }
 }
 echo Blade::render("summoner", [
@@ -205,5 +293,6 @@ echo Blade::render("summoner", [
     "summoner" => $GLOBALS["summoner"],
     "soloQ" => $GLOBALS["soloQ"],
     "flex" => $GLOBALS["flex"],
-    "championsMasteries" => $GLOBALS["championsMasteries"]
+    "championsMasteries" => $GLOBALS["championsMasteries"],
+    "matchInfoList" => $GLOBALS["matchInfoList"]
 ]);

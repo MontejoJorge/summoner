@@ -74,7 +74,36 @@
                 @endif                
             </div>
             <div id="matchHistory">
+                @foreach ($matchInfoList as $m)
+                    <div class="match">
+                       <div class="matchInfo">
+                        <p class="gameMode">{{ getQueueDesc($m->getQueueId()) }}</p>
+                        <p class="timeAgo">{{ timeAgo($m->getGameCreation()) }}</p>
+                        <div class="bar"></div>
+                        <p class="matchResult">{{ getWinOrLose($m) }}</p>
+                        <p class="gameDuration">{{ gmdate("i",$m->getGameDuration())."m ".gmdate("s",$m->getGameDuration())."s" }}</p>
+                       </div>
+                       <div class="matchSummoner">
+                           <!-- TODO mostrar imagen del campeon getParticipantsInfo -->
+                        <img src="../media/champion/{{ getChampionNameById($m) }}" alt="">
+                       </div>
+                       <div class="matchKDA">
 
+                       </div>
+                       <div class="matchSummonerStats">
+
+                       </div>
+                       <div class="matchItems">
+
+                       </div>
+                       <div class="matchTeam1">
+                           
+                       </div>
+                       <div class="matchTeam2">
+                           
+                       </div>
+                    </div>
+                @endforeach
             </div>        
         @elseif (!isset($_GET["name"]))
             <p id="withoutSummonerName">Introduce un nombre de invocador para ver sus estadisticas</p>
