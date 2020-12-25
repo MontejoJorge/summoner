@@ -52,6 +52,16 @@ form {
     grid-template-columns: repeat(3,33.33%);
     grid-template-rows: repeat(6, 120px);
     width: 1000px;
+    overflow: auto;
+}
+#reveralMasteries, label[for="reveralMasteries"] {
+    display: none;
+}
+label[for="reveralMasteries"]{
+    padding: 5px;
+    border-radius: 5px;
+    border: 1px solid black;
+    background-color: #ffc14d;
 }
 #summonerInfo img, #soloQ-info img, #flex-info img {
     width: 100px;
@@ -108,6 +118,7 @@ form {
     grid-row: 3/4; 
 }
 #matchHistory{
+    margin: 5px;
     grid-column: 2/4;
     grid-row: 2/7;
 
@@ -197,4 +208,44 @@ form {
 }
 .gameMode, .matchResult {
     font-weight: 600;
+}
+@media only screen and (max-width: 599px) {
+    #primary {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        grid-template-rows: 100px repeat(5, 120px);
+        grid-template-columns: 100%;
+    }
+    label[for="reveralMasteries"]{
+        display: block;
+    }
+    #championsMasteries {
+        display: none;
+        grid-column: 1/1;
+        grid-row: 3/4;
+    }
+    #matchHistory {
+        grid-column: 1/1;
+        grid-row: 4/5;
+    }
+    #summonerName {
+        width: 100px;
+    }
+    header a h1 {
+        font-size: 20px;
+    }
+    #summonerInfo img, #soloQ-info img, #flex-info img {
+        width: 80px;
+        margin-right: 20px;
+    } 
+    #summonerInfo img {
+        height: 80px;
+    }
+    .leagueInfo p {
+        font-size: 12px;
+    }
+    .leagueInfo h1 {
+        font-size: 15px;
+    }
 }

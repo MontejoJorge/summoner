@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../style/style.css">
     <script src="https://kit.fontawesome.com/9c6fba351e.js" crossorigin="anonymous"></script>
+    <script src="../js/jquery-3.5.1.js"></script>
+    <script src="../js/summoner.js"></script>
     <title>Summoner</title>
 </head>
 
@@ -13,7 +15,7 @@
     <header>
         <a href="summoner.php"><h1>Summoner</h1></a>
         <form action="summoner.php" method="get">
-            <input type="text" name="name" id="summonerName" placeholder="Nombre"><input type="submit" value="Buscar" id="search">
+            <input type="text" name="name" id="summonerName" placeholder="Nombre" required><input type="submit" value="Buscar" id="search">
         </form>
     </header>
     <div id="primary">
@@ -23,6 +25,8 @@
             <div id="summonerDesc">
                 <h3>{{ $summoner->getName() }}</h3>
                 <p id="level">{{ $summoner->getSummonerLevel() }}</p>
+                <label for="reveralMasteries">Show Masteries</label>
+                <input type="checkbox" id="reveralMasteries">
             </div>
         </div>
             <div id="championsMasteries" class="info">
