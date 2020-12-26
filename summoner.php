@@ -16,14 +16,19 @@ use Models\MatchInfo;
 /*Declaracion de variables globales*/
 
 $summoner = new Summoner(); //Contiene informacion basica sobre el invocador
-$soloQ = new League(); //Contiene informacion sobre la liga "soloQ"
-$flex = new League(); //Contiene informacion sobre la liga "flex"
+$leagues = [];
+//$soloQ = new League(); //Contiene informacion sobre la liga "soloQ"
+//$flex = new League(); //Contiene informacion sobre la liga "flex"
 $championsMasteries = []; //Contiene un array con informacion sobre los 3 campeones con mas puntos
 $error = new Error(); //Contendra informacion si ocurre un error en la solicitud a riot games
 $matchList = []; //Contiene la lista de partidas de un invocador
 $matchInfoList = []; //Contiene un array con informacion sobre cada partida
 
-
+/**
+* @desc Esta funcion añade los headers a la request y obtiene el codigo de respuesta de dicha request
+* @param string url Es la url de destino
+* @return object Devuelve el objeto obtenido en la request
+*/
 function executeRequest($url)
 {
     $options = array(
@@ -58,40 +63,53 @@ function executeRequest($url)
             break;
     }    
 }
-
+/**
+* @desc Esta funcion prepara la requuests para obtener la informacion de un invocador
+* @param string name Es el nombre del invocador a buscar
+* @return object Informacion de un invocador
+*/
 function getSummonerInfo($name)
 {
     $summonerV4 = "https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/" . $name;
     
-    //creo un objeto con los datos del json
-    $obj = executeRequest($summonerV4);
-    //seteo los datos al objeto Summoner;
-    $GLOBALS["summoner"]->set($obj);
+    $summonerV4OBJ = executeRequest($summonerV4);
+    return $summonerV4OBJ;
 }
-
-function getLeagueInfo()
+/** 
+* @desc Esta funcion obtiene las ligas de un invocador
+* @param string id Es el id de un invocador
+* @return array En la posicion 0 contiene la informacio de soloQ, en la posicion 1 la de flex
+*/
+function getLeagueInfo($id)
 {
-    $leagueV4 = "https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/" . $GLOBALS["summoner"]->getId();
+    $leagueV4 = "https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/" . $id ;
     $leagueV4OBJ = executeRequest($leagueV4);
 
+    $flex = new League;
+    $soloQ = new League;
+
     //hay dos tipos de colas, soloq y flex, tego que guardar cada una de ellas en un objeto
-    for ($i = 0; $i < count($leagueV4OBJ); $i++) {
-        if ($leagueV4OBJ[$i]->{"queueType"} == "RANKED_FLEX_SR") {
-            $GLOBALS["flex"]->set($leagueV4OBJ[$i]);
+    foreach ($leagueV4OBJ as $l) {
+        if ($l->queueType == "RANKED_FLEX_SR") {
+            $flex->set($l);
         }
-        if ($leagueV4OBJ[$i]->{"queueType"} == "RANKED_SOLO_5x5") {
-            $GLOBALS["soloQ"]->set($leagueV4OBJ[$i]);
+        if ($l->queueType == "RANKED_SOLO_5x5") {
+            $soloQ->set($l);
         }
     }
+    $leagues = [$soloQ,$flex];
+    return $leagues;
 }
-
-function getPromoInfo($obj)
+/**
+ * @desc Esta funcion comprueba si el invocador esta en promocion
+ * @param object league Es una de las posibles ligas (soloQ, flex)
+ * @return string Los iconos segun el estado de su promocion
+ */
+function getPromoInfo($league)
 {
-    if ($obj->getLeaguePoints() == 100) {
-
-        //primero miramos que tipo de cola es (duo,flex)
-        $progress = $obj->getMiniSeries()->{"progress"};
-
+    $noPromo = ["MASTER","GRANDMASTER","CHALLENGER"];
+    if ($league->getLeaguePoints() == 100 && !in_array($league->getTier(), $noPromo)) {
+        $progress = $league->getMiniSeries()->progress;
         $progressIcons = "";
 
         for ($i = 0; $i < strlen($progress); $i++) {
@@ -116,26 +134,27 @@ function getWinrate($wins, $losses)
     return round($wins / ($wins + $losses) * 100);
 }
 
-function getChampionMasteryInfo($num)
+/**
+ * @param int num Posicion del campeon a buscar, siendo 0 el campeon con mas puntos
+ * @return object Toda la informacion de un campeon para un invocador
+ */
+function getChampionMasteryInfo($num, $id = null)
 {
+    if (!isset($id)){
+        $id = $GLOBALS["summoner"]->getId();
+    }
     $championMastery = new championMastery();
 
-    $championMasteryV4 = "https://euw1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/" . $GLOBALS["summoner"]->getId();
+    $championMasteryV4 = "https://euw1.api.riotgames.com/lol/champion-mastery/v4/champion-masteries/by-summoner/" . $id;
     $championMasteryV4OBJ = executeRequest($championMasteryV4);
 
-    //TODO usar la funcion getChampionNameById ?
-    $championId = $championMasteryV4OBJ[$num]->{"championId"};
     $championMasteryInfo = $championMasteryV4OBJ[$num];
 
-    $allChampions = json_decode(file_get_contents("./data/champion.json"))->data;
+    $championName = getChampionNameById($championMasteryInfo->championId);
 
-    foreach ($allChampions as $champion) {
-        if ($champion->key == $championId) {
-            $championMastery->set($championMasteryInfo);
-            $championMastery->setChampionName($champion->id);
-            break;
-        }
-    }
+    $championMastery->setChampionName($championName);
+    $championMastery->set($championMasteryInfo);
+
     return $championMastery;
 }
 
@@ -166,9 +185,15 @@ function shortNumbers($n, $precision = 0)
     return $n_format . " Points";
 }
 
-function getMatchlist($acountId, $beginIndex = 0, $endIndex = 100)
+/**
+ * @desc Esta funcion guarda el historial de partidas de un invocador. INFO: el rango maximo permitido es de 100, de lo contrario, devuelve un error 400
+ * @param string id Es el id de un invocador
+ * @param int beginIndex Indica el indice por el que empezar a buscar, siendo 0 la ultima partida
+ * @param int endIndex Indica en hasta que indice se buscara
+ */
+function getMatchlist($id, $beginIndex = 0, $endIndex = 100)
 {
-    $matchV4 = "https://euw1.api.riotgames.com/lol/match/v4/matchlists/by-account/" . $acountId . "?endIndex=" . $endIndex . "&beginIndex=" . $beginIndex;
+    $matchV4 = "https://euw1.api.riotgames.com/lol/match/v4/matchlists/by-account/" . $id . "?endIndex=" . $endIndex . "&beginIndex=" . $beginIndex;
 
     $matchOBJ = executeRequest($matchV4);
 
@@ -186,6 +211,10 @@ function getMatchInfo($matchId)
     array_push($GLOBALS["matchInfoList"], $matchOBJ);
 }
 
+/**
+ * @param int id Es el identificador de la cola
+ * @return string Descripcion de la cola indicada
+ */
 function getQueueDesc($id)
 {
     $queues = json_decode(file_get_contents("./data/queues.json"));
@@ -218,6 +247,12 @@ function timeAgo($date)
     }
 }
 
+/**
+ * @desc Esta funcion busca el id de un invocador en una partida determinada
+ * @param object match Es el objeto de la partida
+ * @param string name Es el nombre del invocador a buscar, por defecto el nombre sera el nombre de $GLOBALS["summoner"]
+ * @return int Id del invocador indicado en esa partida
+ */
 function getParticipantId($match, $name=null)
 {
     if (!isset($name)){
@@ -232,6 +267,12 @@ function getParticipantId($match, $name=null)
     }
 }
 
+/**
+ * @desc Esta funcion busca una informacion sobre un participante en una partida determinada
+ * @param object match Es el objeto de la partida
+ * @param int participantId Es el id de un participante en esa partida
+ * @param string info Es la informacion a buscar (teamId, championId, spell1Id, spell2Id, stats, timeline)
+ */
 function getParticipantsInfo($match, $participantId, $info)
 {
     $infoReturn = "";
@@ -246,19 +287,12 @@ function getParticipantsInfo($match, $participantId, $info)
 function getWinOrLose($match)
 {
     $id = getParticipantId($match);
-
-    $team = getParticipantsInfo($match, $id, "teamId");
-
-    foreach ($match->getTeams() as $m) {
-        if ($m->teamId == $team) {
-            $result = $m->win;
-        }
-    }
+    $result = getParticipantsInfo($match, $id, "stats")->win;
 
     switch ($result) {
-        case "Win":
+        case 1:
             return "Victory";
-        case "Fail":
+        case 0:
             return "Defeat";
         default:
             return "Tie";
@@ -268,10 +302,23 @@ function getWinOrLose($match)
 //si han introducido el enombre empiezo a llamar a los metodos
 if (isset($_GET["name"])) {
     //le paso al metodo el nombre remplazando los espacios por su caracter especial
-    getSummonerInfo(str_replace(' ', '%20', $_GET["name"]));
+    $summonerName = str_replace(' ', '%20', $_GET["name"]);
+    $summonerV4OBJ = getSummonerInfo($summonerName);
+
+    if (isset($summonerV4OBJ)){
+        $GLOBALS["summoner"]->set($summonerV4OBJ);
+    }    
+    
     //si el invocador ha sido encontrado podemos buscar el resto
     if ($GLOBALS["summoner"]->getId() != "") {
-        getLeagueInfo();
+        $leagues = getLeagueInfo($GLOBALS["summoner"]->getId());
+
+        if (isset($leagues[0])){
+            $GLOBALS["soloQ"]->set($leagues[0]);
+        }
+        if (isset($leagues[1])){
+            $GLOBALS["flex"]->set($leagues[1]);
+        } 
 
         for ($i = 0; $i < 3; $i++) {
             array_push($GLOBALS["championsMasteries"], getChampionMasteryInfo($i));
