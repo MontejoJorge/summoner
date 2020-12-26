@@ -224,11 +224,14 @@ function timeAgo($date)
     }
 }
 
-function getParticipantId($match)
+function getParticipantId($match, $name=null)
 {
+    if (!isset($name)){
+        $name = $GLOBALS["summoner"]->getName();
+    }
     $id = "";
     foreach ($match->getParticipantIdentities() as $p) {
-        if ($p->player->summonerName == $GLOBALS["summoner"]->getName()) {
+        if ($p->player->summonerName == $name) {
             $id = $p->participantId;
             return $id;
         }
@@ -264,7 +267,7 @@ function getWinOrLose($match)
         case "Fail":
             return "Defeat";
         default:
-            return "Victory";
+            return "Tie";
     }
 }
 

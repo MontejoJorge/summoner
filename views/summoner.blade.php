@@ -89,7 +89,7 @@
                        </div>
                        <div class="matchSummoner">
                            <!-- TODO mostrar imagen del campeon getParticipantsInfo -->
-                        <img src="../media/champion/{{ getChampionNameById($m) }}" alt="">
+                        <img class="champImg" src="../media/champion/{{ getChampionNameById(getParticipantsInfo($m,getParticipantId($m),"championId")).".png" }}" alt="">
                        </div>
                        <div class="matchKDA">
 
