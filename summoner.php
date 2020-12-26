@@ -24,13 +24,6 @@ $matchList = []; //Contiene la lista de partidas de un invocador
 $matchInfoList = []; //Contiene un array con informacion sobre cada partida
 
 
-
-function get_http_response_code($domain1)
-{
-    $headers = get_headers($domain1 . "?api_key=" . $GLOBALS["apiKey"]);
-    return substr($headers[0], 9, 3);
-}
-
 function executeRequest($url)
 {
     $options = array(
@@ -41,24 +34,15 @@ function executeRequest($url)
                 "Origin: https://developer.riotgames.com\r\n" .
                 "X-Riot-Token: " . $GLOBALS["apiKey"] . "\r\n"
         )
-    );
-
+    );    
     $context  = stream_context_create($options);
-    return json_decode(file_get_contents($url, false, $context));
-}
 
-function getSummonerInfo($name)
-{
-    $summonerV4 = "https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/" . $name;
+    $headers = get_headers($url,0,$context);
+    $responseCode = substr($headers[0], 9, 3);
 
-    $get_http_response_code = get_http_response_code($summonerV4);
-
-    switch ($get_http_response_code) {
+    switch ($responseCode) {
         case 200:
-            //creo un objeto con los datos del json
-            $obj = executeRequest($summonerV4);
-            //seteo los datos al objeto Summoner;
-            $GLOBALS["summoner"]->set($obj);
+            return json_decode(file_get_contents($url, false, $context));
             break;
         case 404:
             $GLOBALS["error"]->setErrorDesc("El invocador no existe");
@@ -69,10 +53,20 @@ function getSummonerInfo($name)
             $GLOBALS["error"]->setErrorIcon("fas fa-exclamation-circle");
             break;
         default:
-            $GLOBALS["error"]->setErrorDesc("Estamos teniendo problemas, disculpe las molestias " . $get_http_response_code);
+            $GLOBALS["error"]->setErrorDesc("Estamos teniendo problemas, disculpe las molestias. Codigo de error: " . $responseCode);
             $GLOBALS["error"]->setErrorIcon("fas fa-exclamation-circle");
             break;
-    }
+    }    
+}
+
+function getSummonerInfo($name)
+{
+    $summonerV4 = "https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/" . $name;
+    
+    //creo un objeto con los datos del json
+    $obj = executeRequest($summonerV4);
+    //seteo los datos al objeto Summoner;
+    $GLOBALS["summoner"]->set($obj);
 }
 
 function getLeagueInfo()
