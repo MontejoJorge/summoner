@@ -16,9 +16,7 @@ use Models\MatchInfo;
 /*Declaracion de variables globales*/
 
 $summoner = new Summoner(); //Contiene informacion basica sobre el invocador
-$leagues = [];
-//$soloQ = new League(); //Contiene informacion sobre la liga "soloQ"
-//$flex = new League(); //Contiene informacion sobre la liga "flex"
+$leagues = []; //Contiene informacion sobre las ligas (soloQ y flex)
 $championsMasteries = []; //Contiene un array con informacion sobre los 3 campeones con mas puntos
 $error = new Error(); //Contendra informacion si ocurre un error en la solicitud a riot games
 $matchList = []; //Contiene la lista de partidas de un invocador
@@ -299,6 +297,15 @@ function getWinOrLose($match)
     }
 }
 
+function getLeagueName($league) {
+    $name = $league->getQueueType();
+    if ($name == "RANKED_FLEX_SR"){
+        return "flex";
+    } else {
+        return "soloQ";
+    }
+}
+
 //si han introducido el enombre empiezo a llamar a los metodos
 if (isset($_GET["name"])) {
     //le paso al metodo el nombre remplazando los espacios por su caracter especial
@@ -311,14 +318,11 @@ if (isset($_GET["name"])) {
     
     //si el invocador ha sido encontrado podemos buscar el resto
     if ($GLOBALS["summoner"]->getId() != "") {
-        $leagues = getLeagueInfo($GLOBALS["summoner"]->getId());
+        $leaguesArr = getLeagueInfo($GLOBALS["summoner"]->getId());
 
-        if (isset($leagues[0])){
-            $GLOBALS["soloQ"]->set($leagues[0]);
+        foreach ($leaguesArr as $l) {
+            array_push($GLOBALS["leagues"],$l);
         }
-        if (isset($leagues[1])){
-            $GLOBALS["flex"]->set($leagues[1]);
-        } 
 
         for ($i = 0; $i < 3; $i++) {
             array_push($GLOBALS["championsMasteries"], getChampionMasteryInfo($i));
@@ -335,8 +339,7 @@ if (isset($_GET["name"])) {
 echo Blade::render("summoner", [
     "error" => $GLOBALS["error"],
     "summoner" => $GLOBALS["summoner"],
-    "soloQ" => $GLOBALS["soloQ"],
-    "flex" => $GLOBALS["flex"],
+    "leagues" => $GLOBALS["leagues"],
     "championsMasteries" => $GLOBALS["championsMasteries"],
     "matchInfoList" => $GLOBALS["matchInfoList"]
 ]);

@@ -41,15 +41,16 @@
                 @php $i++ @endphp
                 @endforeach
             </div>
-            <div id="soloQ-info" class="info">
-                @if ($soloQ->getleagueId() != "")               
-                    <img src="./media/leagues/Emblem_{{ ucfirst(strtolower($soloQ->getTier())) }}.png"  alt="league icon">
+            @foreach ($leagues as $l)
+            <div id="{{ getLeagueName($l) }}-info" class="info">
+                @if ($l->getleagueId() != "")             
+                    <img src="./media/leagues/Emblem_{{ ucfirst(strtolower($l->getTier())) }}.png"  alt="league icon">
                     <div class="leagueInfo">
-                        <p class="leagueType">Clasificatoria en solitario</p>
-                        <h4> {{ ucfirst(strtolower($soloQ->getTier())) . " " . $soloQ->getRank() }} </h4>
-                        <p clas="leaguePoints"> {{ $soloQ->getLeaguePoints() . " LP "}} @php print getPromoInfo($soloQ) @endphp</p>
-                        <p clas="wins-losses"> {{ $soloQ->getWins() . "W " . $soloQ->getLosses() . "L" }} </p>
-                        <p clas="winRate">Tasa de victoria  {{ getWinrate($soloQ->getWins(), $soloQ->getLosses()) }} %</p>
+                        <p class="leagueType">Clasificatoria <?= (getLeagueName($l)=="soloQ") ? "en solitario" : "flexible"?></p>
+                        <h4> {{ ucfirst(strtolower($l->getTier())) . " " . $l->getRank() }} </h4>
+                        <p clas="leaguePoints"> {{ $l->getLeaguePoints() . " LP "}} @php print getPromoInfo($l) @endphp</p>
+                        <p clas="wins-losses"> {{ $l->getWins() . "W " . $l->getLosses() . "L" }} </p>
+                        <p clas="winRate">Tasa de victoria  {{ getWinrate($l->getWins(), $l->getLosses()) }} %</p>
                     </div>
                 @else               
                     <img src="./media/other/Emblem_Default.png" alt="league icon">
@@ -59,24 +60,7 @@
                     </div>             
                 @endif
             </div>
-            <div id="flex-info" class="info">
-                @if ($flex->getleagueId() != "")
-                    <img src="./media/leagues/Emblem_{{ ucfirst(strtolower($flex->getTier())) }}.png"  alt="league icon">
-                    <div class="leagueInfo">
-                        <p class="leagueType">Clasificatoria flexible</p>
-                        <h4> {{ ucfirst(strtolower($flex->getTier())) . " " . $flex->getRank() }}</h4>
-                        <p clas="leaguePoints"> {{ $flex->getLeaguePoints() . " LP "}} @php print getPromoInfo($flex) @endphp</p>
-                        <p clas="wins-losses"> {{ $flex->getWins() . "W " . $flex->getLosses() . "L" }} </p>
-                        <p clas="winRate">Tasa de victoria  {{ getWinrate($flex->getWins(), $flex->getLosses()) }} %</p>
-                    </div>                
-                @else                
-                    <img src="./media/other/Emblem_Default.png" alt="league icon">
-                    <div class="leagueInfo">
-                        <p class="leagueType">Clasificatoria en flexible</p>
-                        <h4 class="unranked">Unranked</h4>
-                    </div>                
-                @endif                
-            </div>
+            @endforeach
             <div id="matchHistory">
                 @foreach ($matchInfoList as $m)
                     <div class="match">
@@ -88,7 +72,6 @@
                         <p class="gameDuration">{{ gmdate("i",$m->getGameDuration())."m ".gmdate("s",$m->getGameDuration())."s" }}</p>
                        </div>
                        <div class="matchSummoner">
-                           <!-- TODO mostrar imagen del campeon getParticipantsInfo -->
                         <img class="champImg" src="../media/champion/{{ getChampionNameById(getParticipantsInfo($m,getParticipantId($m),"championId")).".png" }}" alt="">
                        </div>
                        <div class="matchKDA">
