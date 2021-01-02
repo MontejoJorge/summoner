@@ -23,6 +23,9 @@ echo "This may take a few minutes, powershell will close when finished."
 
 mkdir profileicons
 mkdir champion
+mkdir item
+mkdir summonerSpell
+mkdir spell
 
 mkdir dragontail
 
@@ -31,6 +34,12 @@ tar zxvf dragontail.tgz -C dragontail
 cp .\dragontail\10.25.1\img\profileicon\* .\profileicons
 
 cp .\dragontail\10.25.1\img\champion\* .\champion
+
+cp .\dragontail\10.25.1\img\item\* .\item
+
+mv .\dragontail\10.25.1\img\spell\Summoner* .\summonerSpell
+
+cp .\dragontail\10.25.1\img\spell\* .\spell
 
 
 Remove-Item -Recurse -Force .\dragontail

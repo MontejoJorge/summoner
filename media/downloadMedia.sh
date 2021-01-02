@@ -24,11 +24,17 @@ mkdir dragontail
 
 mkdir profileicons
 mkdir champion
+mkdir item
+mkdir summonerSpell
+mkdir spell
 
 tar -xzf dragontail.tgz -C ./dragontail
 
 cp ./dragontail/10.25.1/img/profileicon/* ./profileicons > /dev/null 2>&1
 cp ./dragontail/10.25.1/img/champion/* ./champion > /dev/null 2>&1
+cp ./dragontail/10.25.1/img/item/* ./item
+cp ./dragontail/10.25.1/img/Summoner* ./summonerSpell
+cp ./dragontail/10.25.1/img/* ./spell
 
 rm -rf ./dragontail
 rm ./dragontail.tgz
