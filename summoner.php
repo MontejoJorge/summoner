@@ -23,10 +23,10 @@ $matchList = []; //Contiene la lista de partidas de un invocador
 $matchInfoList = []; //Contiene un array con informacion sobre cada partida
 
 /**
-* @desc Esta funcion añade los headers a la request y obtiene el codigo de respuesta de dicha request
-* @param string url Es la url de destino
-* @return object Devuelve el objeto obtenido en la request
-*/
+ * @desc Esta funcion añade los headers a la request y obtiene el codigo de respuesta de dicha request
+ * @param string url Es la url de destino
+ * @return object Devuelve el objeto obtenido en la request
+ */
 function executeRequest($url)
 {
     $options = array(
@@ -61,11 +61,12 @@ function executeRequest($url)
             break;
     }    
 }
+
 /**
-* @desc Esta funcion prepara la requuests para obtener la informacion de un invocador
-* @param string name Es el nombre del invocador a buscar
-* @return object Informacion de un invocador
-*/
+ * @desc Esta funcion prepara la requuests para obtener la informacion de un invocador
+ * @param string name Es el nombre del invocador a buscar
+ * @return object Informacion de un invocador
+ */
 function getSummonerInfo($name)
 {
     $summonerV4 = "https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/" . $name;
@@ -73,11 +74,12 @@ function getSummonerInfo($name)
     $summonerV4OBJ = executeRequest($summonerV4);
     return $summonerV4OBJ;
 }
+
 /** 
-* @desc Esta funcion obtiene las ligas de un invocador
-* @param string id Es el id de un invocador
-* @return array En la posicion 0 contiene la informacio de soloQ, en la posicion 1 la de flex
-*/
+ * @desc Esta funcion obtiene las ligas de un invocador
+ * @param string id Es el id de un invocador
+ * @return array En la posicion 0 contiene la informacio de soloQ, en la posicion 1 la de flex
+ */
 function getLeagueInfo($id)
 {
     $leagueV4 = "https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/" . $id ;
@@ -98,6 +100,7 @@ function getLeagueInfo($id)
     $leagues = [$soloQ,$flex];
     return $leagues;
 }
+
 /**
  * @desc Esta funcion comprueba si el invocador esta en promocion
  * @param object league Es una de las posibles ligas (soloQ, flex)
@@ -245,6 +248,14 @@ function timeAgo($date)
     }
 }
 
+function trunc($val, $f="0")
+{
+    if(($p = strpos($val, '.')) !== false) {
+        $val = floatval(substr($val, 0, $p + 1 + $f));
+    }
+    return $val;
+}
+
 /**
  * @desc Esta funcion busca el id de un invocador en una partida determinada
  * @param object match Es el objeto de la partida
@@ -280,6 +291,21 @@ function getParticipantsInfo($match, $participantId, $info)
             return $infoReturn;
         }
     }
+}
+
+function getKDA($match, $participantId,$format){
+    $stats = getParticipantsInfo($match,$participantId,"stats");
+
+    $k = $stats->kills;
+    $d = $stats->deaths;
+    $a = $stats->assists;
+
+    if ($format=="math"){
+        //(K + A) / D = KDA Ratio
+        return trunc(($k+$a)/$d,2);
+    } elseif ($format=="text") {
+        return $k."/".$d."/".$a; 
+    }    
 }
 
 function getWinOrLose($match)
@@ -334,6 +360,7 @@ if (isset($_GET["name"])) {
         foreach ($GLOBALS["matchList"] as $m) {
             getMatchInfo($m->gameId);
         }
+        echo $GLOBALS["matchInfoList"][2]->getGameId(); 
     }
 }
 echo Blade::render("summoner", [
