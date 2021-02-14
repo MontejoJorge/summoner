@@ -1,6 +1,5 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+error_reporting(0);
 
 require "./vendor/autoload.php";
 require_once "./API_keys.php";
@@ -37,13 +36,10 @@ function executeRequest($url)
                 "Origin: https://developer.riotgames.com\r\n" .
                 "X-Riot-Token: " . $GLOBALS["apiKey"] . "\r\n"
         )
-    );    
+    );
     $context  = stream_context_create($options);
 
-    $headers = get_headers($url,0,$context);
-    $responseCode = substr($headers[0], 9, 3);
-
-    switch ($responseCode) {
+    switch (http_response_code()) {
         case 200:
             return json_decode(file_get_contents($url, false, $context));
             break;
@@ -56,10 +52,10 @@ function executeRequest($url)
             $GLOBALS["error"]->setErrorIcon("fas fa-exclamation-circle");
             break;
         default:
-            $GLOBALS["error"]->setErrorDesc("Estamos teniendo problemas, disculpe las molestias. Codigo de error: " . $responseCode);
+            $GLOBALS["error"]->setErrorDesc("Estamos teniendo problemas, disculpe las molestias. Codigo de error: " . http_response_code());
             $GLOBALS["error"]->setErrorIcon("fas fa-exclamation-circle");
             break;
-    }    
+    }
 }
 
 /**
@@ -70,7 +66,7 @@ function executeRequest($url)
 function getSummonerInfo($name)
 {
     $summonerV4 = "https://euw1.api.riotgames.com/lol/summoner/v4/summoners/by-name/" . $name;
-    
+
     $summonerV4OBJ = executeRequest($summonerV4);
     return $summonerV4OBJ;
 }
@@ -82,7 +78,7 @@ function getSummonerInfo($name)
  */
 function getLeagueInfo($id)
 {
-    $leagueV4 = "https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/" . $id ;
+    $leagueV4 = "https://euw1.api.riotgames.com/lol/league/v4/entries/by-summoner/" . $id;
     $leagueV4OBJ = executeRequest($leagueV4);
 
     $flex = new League;
@@ -97,7 +93,7 @@ function getLeagueInfo($id)
             $soloQ->set($l);
         }
     }
-    $leagues = [$soloQ,$flex];
+    $leagues = [$soloQ, $flex];
     return $leagues;
 }
 
@@ -108,7 +104,7 @@ function getLeagueInfo($id)
  */
 function getPromoInfo($league)
 {
-    $noPromo = ["MASTER","GRANDMASTER","CHALLENGER"];
+    $noPromo = ["MASTER", "GRANDMASTER", "CHALLENGER"];
     if ($league->getLeaguePoints() == 100 && !in_array($league->getTier(), $noPromo)) {
         $progress = $league->getMiniSeries()->progress;
         $progressIcons = "";
@@ -141,7 +137,7 @@ function getWinrate($wins, $losses)
  */
 function getChampionMasteryInfo($num, $id = null)
 {
-    if (!isset($id)){
+    if (!isset($id)) {
         $id = $GLOBALS["summoner"]->getId();
     }
     $championMastery = new championMastery();
@@ -168,7 +164,6 @@ function getChampionNameById($id)
             return $champion->id;
         }
     }
-
 }
 
 function shortNumbers($n, $precision = 0)
@@ -248,9 +243,9 @@ function timeAgo($date)
     }
 }
 
-function trunc($val, $f="0")
+function trunc($val, $f = "0")
 {
-    if(($p = strpos($val, '.')) !== false) {
+    if (($p = strpos($val, '.')) !== false) {
         $val = floatval(substr($val, 0, $p + 1 + $f));
     }
     return $val;
@@ -262,9 +257,9 @@ function trunc($val, $f="0")
  * @param string name Es el nombre del invocador a buscar, por defecto el nombre sera el nombre de $GLOBALS["summoner"]
  * @return int Id del invocador indicado en esa partida
  */
-function getParticipantId($match, $name=null)
+function getParticipantId($match, $name = null)
 {
-    if (!isset($name)){
+    if (!isset($name)) {
         $name = $GLOBALS["summoner"]->getName();
     }
     $id = "";
@@ -295,26 +290,27 @@ function getParticipantsInfo($match, $participantId, $info)
 
 function getSummonerNameByParticipantId($match, $id)
 {
-    foreach ($match->getParticipantIdentities() as $participant){
-        if ($participant->participantId == $id){
+    foreach ($match->getParticipantIdentities() as $participant) {
+        if ($participant->participantId == $id) {
             return $participant->player->summonerName;
         }
     }
 }
 
-function getKDA($match, $participantId,$format){
-    $stats = getParticipantsInfo($match,$participantId,"stats");
+function getKDA($match, $participantId, $format)
+{
+    $stats = getParticipantsInfo($match, $participantId, "stats");
 
     $k = $stats->kills;
     $d = $stats->deaths;
     $a = $stats->assists;
 
-    if ($format=="math"){
+    if ($format == "math") {
         //(K + A) / D = KDA Ratio
-        return trunc(($k+$a)/$d,2);
-    } elseif ($format=="text") {
-        return $k."/".$d."/".$a; 
-    }    
+        return trunc(($k + $a) / $d, 2);
+    } elseif ($format == "text") {
+        return $k . "/" . $d . "/" . $a;
+    }
 }
 
 function getWinOrLose($match)
@@ -332,9 +328,10 @@ function getWinOrLose($match)
     }
 }
 
-function getLeagueName($league) {
+function getLeagueName($league)
+{
     $name = $league->getQueueType();
-    if ($name == "RANKED_FLEX_SR"){
+    if ($name == "RANKED_FLEX_SR") {
         return "flex";
     } else {
         return "soloQ";
@@ -347,16 +344,16 @@ if (isset($_GET["name"])) {
     $summonerName = str_replace(' ', '%20', $_GET["name"]);
     $summonerV4OBJ = getSummonerInfo($summonerName);
 
-    if (isset($summonerV4OBJ)){
+    if (isset($summonerV4OBJ)) {
         $GLOBALS["summoner"]->set($summonerV4OBJ);
-    }    
-    
+    }
+
     //si el invocador ha sido encontrado podemos buscar el resto
     if ($GLOBALS["summoner"]->getId() != "") {
         $leaguesArr = getLeagueInfo($GLOBALS["summoner"]->getId());
 
         foreach ($leaguesArr as $l) {
-            array_push($GLOBALS["leagues"],$l);
+            array_push($GLOBALS["leagues"], $l);
         }
 
         for ($i = 0; $i < 3; $i++) {
