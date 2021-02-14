@@ -105,10 +105,18 @@
                     @endfor
                 </div>
                 <div class="matchTeam1">
-
+                    @for ($i = 1; $i < 6; $i++)
+                    <a href="/summoner.php?name={{ getSummonerNameByParticipantId($m, $i) }}">
+                    <p  class="participantName">{{ getSummonerNameByParticipantId($m, $i) }}</p>
+                    </a>
+                    @endfor
                 </div>
                 <div class="matchTeam2">
-
+                    @for ($i = 6; $i < 11; $i++)
+                    <a href="/summoner.php?name={{ getSummonerNameByParticipantId($m, $i) }}">
+                        <p  class="participantName">{{ getSummonerNameByParticipantId($m, $i) }}</p>
+                        </a>
+                    @endfor
                 </div>
             </div>
             @endforeach

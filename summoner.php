@@ -293,6 +293,15 @@ function getParticipantsInfo($match, $participantId, $info)
     }
 }
 
+function getSummonerNameByParticipantId($match, $id)
+{
+    foreach ($match->getParticipantIdentities() as $participant){
+        if ($participant->participantId == $id){
+            return $participant->player->summonerName;
+        }
+    }
+}
+
 function getKDA($match, $participantId,$format){
     $stats = getParticipantsInfo($match,$participantId,"stats");
 
@@ -360,7 +369,6 @@ if (isset($_GET["name"])) {
         foreach ($GLOBALS["matchList"] as $m) {
             getMatchInfo($m->gameId);
         }
-        echo $GLOBALS["matchInfoList"][2]->getGameId(); 
     }
 }
 echo Blade::render("summoner", [
